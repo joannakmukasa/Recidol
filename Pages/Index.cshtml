@@ -1,0 +1,601 @@
+﻿@page
+@model IndexModel
+@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Home page";
+}
+<head>
+    <!-- Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<div class="text-center">
+    
+    <body>
+        <h1>Home</h1>
+        <div>
+            <!--Upload Receipt form-->
+            <form method="post" enctype="multipart/form-data">
+                <div class="custom-file mb-3">
+                    <label for="postedImage">Upload Receipt:</label> <br>
+                    <input type="file" name="postedImage" class="custom-file-input" id="uploadField"/>
+                </div>
+                <div>
+                    <button type="submit" asp-for="uploadedFile" id="uploadbtn" class="btn btn-dark blackbtns">Upload</button>
+                </div>
+            </form>
+            or
+            <div>
+                <button class="btn blackbtns" data-bs-toggle="modal" data-bs-target="#EMmodal" >Enter Manually</button>
+            </div>
+        </div>
+        <p></p>
+        <!--Enter Manually modal form-->
+        <div class="modal" id="EMmodal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Manual Entry</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        @* <form>
+                            General Information
+                            <br>
+                            <label for="" class="form-label">Vendor Name: </label>
+                            <input type="text" name="" id="" class="">
+                            <br />
+                            <label for="">Category</label> <br>
+                            <input type="radio" name="" id="">
+                            <label for="">Food</label> 
+                            <input type="radio" name="" id="">
+                            <label for="">Miscellaneous</label>
+                            <br>
+                            <label for="">Date: </label>
+                            <input type="date" name="" id="">
+                            <label for="">Time: </label>
+                            <input type="time" name="" id="">
+                            <br>
+                            <label for="">Total Amount:</label>
+                            <input type="number" name="" id="">
+                            <br>
+                            <label for="">Currency:</label> 
+                            <input type="text" name="" id=""> 
+                            <br>
+                            <label for="">Country(Abbreviation)</label>
+                            <input type="text">
+                            <br><br>
+                            Line Items 
+                            <br>
+                            <label for="">Name: </label>
+                            <input type="text" name="" id="">
+                            <br>
+                            <label for="">Price(of 1): </label>
+                            <input type="number" name="" id="">
+                            <br>
+                            <label>Quantity: </label>
+                            <input type="number" name="" id="">
+                        </form> *@
+                        <form id="purchaseForm">
+                            <fieldset>
+                                <legend>General Information</legend>
+                                <label for="vendorName">Vendor Name:</label>
+                                <input type="text" id="vendorName" name="vendorName">
+                                <br>
+                                <label>Category:</label>
+                                <br>
+                                <input type="radio" id="food" name="category" value="Food">
+                                <label for="food">Food</label>
+                                <input type="radio" id="miscellaneous" name="category" value="Miscellaneous">
+                                <label for="miscellaneous">Miscellaneous</label>
+                                <br>
+                                <label for="date">Date:</label>
+                                <input type="date" id="date" name="date">
+                                <label for="time">Time:</label>
+                                <input type="time" id="time" name="time">
+                                <br>
+                                <label for="totalAmount">Total Amount:</label>
+                                <input type="number" id="totalAmount" name="totalAmount">
+                                <br>
+                                <label for="currency">Currency:</label>
+                                <input type="text" id="currency" name="currency">
+                                <br>
+                                <label for="country">Country (Abbreviation):</label>
+                                <input type="text" id="country" name="country">
+                            </fieldset>
+                            <fieldset>
+                                <legend>Line Items</legend>
+                                <div id="lineItems">
+                                    <div class="line-item">
+                                        <label>Name:</label>
+                                        <input type="text" name="itemName[]">
+                                        <br>
+                                        <label>Price (of 1):</label>
+                                        <input type="number" name="itemPrice[]">
+                                        <br>
+                                        <label>Quantity:</label>
+                                        <input type="number" name="itemQuantity[]">
+                                    </div>
+                                </div>
+                                <button type="button" onclick="addLineItem()">Add Line Item</button>
+                                <button type="button" onclick="removeLineItem()">Remove Line Item</button>
+                            </fieldset>
+                            <br>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <hr>
+        <div class="tables box-shadow">
+            <!--Order by button-->
+            <div id="tablecontrols">
+                <div class="btn-group" id="orderBy">
+                    <button type="button" class="dropdown-toggle rounded-3 bg-light" data-bs-toggle="dropdown">Order By:</button>
+                    @* <button type="button" class="dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button> *@
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" id="orderByShopBtn">Shop Name</a></li>
+                        <li><a class="dropdown-item" href="#" id="orderByCategoryBtn">Category</a></li>
+                        <li><a class="dropdown-item" href="#" id="orderByCountryBtn">Country</a></li>
+                        <li><a class="dropdown-item" href="#" id="orderByDateBtn">Date</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="resetOrderBtn">Reset</a></li>
+                    </ul>
+                </div>
+                
+            </div>
+            <p style="color:#F0EFEE">space</p>
+            
+            <p></p>
+            <div id="updateTable" >
+                <a asp-area="" asp-page="/Index" class="btn blackbtns">Update Table</a>
+            </div>
+            <p></p>
+            <!--Receipt Table-->
+            <div id= "receiptsList" class="table-responsive">
+                <table class="table table-bordered rounded-3">
+                    <thead class= "table-head table-dark">
+                        <tr>
+                            <th>Category</th>
+                            <th>Store Name</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Country</th>
+                            <th>Manage Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.receipts != null)
+                    {
+                        
+                        @foreach(var r in Model.receipts)
+                        {
+                            <tr>
+                                <td>@r.Category</td>
+                                <td>@r.SupplierName</td>
+                                <td>@r.date</td>
+                                <td>@r.totalAmount @r.Currency</td>
+                                <td>@r.Country</td>
+                                <td class="button-group"> 
+                                    <div>
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#myModal-@r.id" class="btn btn-success tableBtns"> Open </button>
+                                    </div> |
+                                    <div>
+                                        <button type="button" class="btn btn-warning" disabled>Edit</button>
+                                    </div> |
+                                    <div>
+                                        <!--Delete Reciept form-->
+                                        <form method="post" asp-page-handler="Delete">
+                                            <input type="hidden" value="@r.id" name="receiptId"> 
+                                            <button type="submit" class="btn btn-danger delete-btn" >Delete</button>
+                                        </form>
+                                        @* <button type="button" class="btn btn-danger delete-btn" data-receipt-id="@r.id">Delete</button> *@
+                                    </div>
+                                </td>
+                            </tr>         
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <!--Receipt table ordered by shop name-->
+            <div id="receiptsListByShop" class="table-responsive">
+                @* <h4>Ordered by Supplier Name</h4> *@
+                <table class="table table-bordered">
+                    <thead class="table-head table-dark">
+                        <tr>
+                            <th>Category</th>
+                            <th>Store Name</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Country</th>
+                            <th>Manage Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.receiptsByShop != null)
+                    {
+                        
+                        @foreach(var s in Model.receiptsByShop)
+                        {
+                            <tr>
+                                <td>@s.Category</td>
+                                <td>@s.SupplierName</td>
+                                <td>@s.date</td>
+                                <td>@s.totalAmount @s.Currency</td>
+                                <td>@s.Country</td>
+                                <td class="button-group">
+                                    <div>
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#myModal-@s.id" class="btn btn-success"> Open </button>
+                                    </div> |
+                                    <div>
+                                        <button type="button" class="btn btn-warning" disabled>Edit</button>
+                                    </div> |
+                                    <div> 
+                                        <form method="post" asp-page-handler="Delete">
+                                            <input type="hidden" value="@s.id" name="receiptId"> 
+                                            <button type="submit" class="btn btn-danger delete-btn" >Delete</button>
+                                        </form>
+                                        @* <button type="button" class="btn btn-danger">Delete</button> *@
+                                    </div>
+                                </td>
+                            </tr>         
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <!--Receipt table ordered by country-->
+            <div id="receiptsListByCountry" class="table-responsive">
+                @* <h4>Ordered by Country</h4> *@
+                <table class="table table-bordered">
+                    <thead class= "table-head table-dark">
+                        <tr>
+                            <th>Category</th>
+                            <th>Store Name</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Country</th>
+                            <th>Manage Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.receiptsByCountry != null)
+                    {
+                        @foreach(var c in Model.receiptsByCountry)
+                        {
+                            <tr>
+                                <td>@c.Category</td>
+                                <td>@c.SupplierName</td>
+                                <td>@c.date</td>
+                                <td>@c.totalAmount @c.Currency</td>
+                                <td>@c.Country</td>
+                                <td class="button-group">
+                                    <div>
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#myModal-@c.id" class="btn btn-success"> Open </button>
+                                    </div> |
+                                    <div>
+                                        <button type="button" class="btn btn-warning" disabled>Edit</button>
+                                    </div> |
+                                    <div>
+                                        <form method="post" asp-page-handler="Delete">
+                                            <input type="hidden" value="@c.id" name="receiptId"> 
+                                            <button type="submit" class="btn btn-danger delete-btn" >Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>         
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <!--Receipt table ordered by Catgeory-->
+            <div id="receiptsListByCategory" class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class= "table-head table-dark">
+                        <tr>
+                            <th>Category</th>
+                            <th>Store Name</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Country</th>
+                            <th>Manage Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.receiptsByShop != null)
+                    {
+                        
+                        @foreach(var b in Model.receiptsByCategory)
+                        {
+                            <tr>
+                                <td>@b.Category</td>
+                                <td>@b.SupplierName</td>
+                                <td>@b.date</td>
+                                <td>@b.totalAmount @b.Currency</td>
+                                <td>@b.Country</td>
+                                <td class="button-group">
+                                    <div>
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#myModal-@b.id" class="btn btn-success"> Open </button>
+                                    </div> |
+                                    <div>
+                                        <button type="button" class="btn btn-warning" disabled>Edit</button>
+                                    </div> |
+                                    <div> 
+                                        <form method="post" asp-page-handler="Delete">
+                                            <input type="hidden" value="@b.id" name="receiptId"> 
+                                            <button type="submit" class="btn btn-danger delete-btn" >Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>         
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <!--Receipt table ordered by date-->
+            <div id="receiptsListByDate" class="table-responsive">
+                @* <h4>Ordered by Date</h4> *@
+                <table class="table table-bordered">
+                    <thead class= "table-head table-dark">
+                        <tr>
+                            <th>Category</th>
+                            <th>Store Name</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Country</th>
+                            <th>Manage Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.receiptsByDate != null)
+                    {
+                        
+                        @foreach(var d in Model.receiptsByDate)
+                        {
+                            <tr>
+                                <td>@d.Category</td>
+                                <td>@d.SupplierName</td>
+                                <td>@d.date</td>
+                                <td>@d.totalAmount @d.Currency</td>
+                                <td>@d.Country</td>
+                                <td class="button-group">
+                                    <div>
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#myModal-@d.id" class="btn btn-success"> Open </button>
+                                    </div> |
+                                    <div>
+                                        <button type="button" class="btn btn-warning" disabled>Edit</button>
+                                    </div> |
+                                    <div>
+                                        <form method="post" asp-page-handler="Delete">
+                                            <input type="hidden" value="@d.id" name="receiptId"> 
+                                            <button type="submit" class="btn btn-danger delete-btn" >Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>         
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Open Receipts Modal -->
+        @if (Model.receipts != null)
+        {
+            @foreach(var r in Model.receipts)
+            {
+                <div class="modal" id="myModal-@r.id">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">Shop: @r.SupplierName - Date: @r.date</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                <div>
+                                    <img src="images/@r.imagePath" alt="Image">
+                                    <h4>Details</h4>
+                                    <p>
+                                        Shop: @r.SupplierName - Date: @r.date <br>
+                                        Category: @r.Category <br>
+                                        Total Amount: @r.totalAmount @r.Currency
+                                    </p>
+                                </div>
+                                <h5>Items</h5>
+                                <div>
+                                    <table class="table table-striped table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Product Name</th>
+                                                <th>Quantity</th>
+                                                <th>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach(var l in Model.items)
+                                            {
+                                                @if (l.receiptId == r.id)
+                                                {
+                                                    <tr>
+                                                        <td>@l.description</td>
+                                                        <td>@l.quantity</td>
+                                                        <td>@l.totalAmount @r.Currency</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        <hr>
+        @* div for displaying the report *@
+        <div id="insights">
+            <h2>Spending Report</h2>
+            <div>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item" id="graphYearBtn">
+                        <p class="nav-link active">View By Year</p>
+                    </li>
+                    <li class="nav-item" id="graphMonthBtn">
+                        <p class="nav-link">View By Month</p>
+                    </li>
+                </ul>
+            </div>
+            <canvas id="chart-area"></canvas>
+            <canvas id="chart-area-months"></canvas>
+        </div>
+
+        @if (Model.receipts != null)
+        {
+            @*  script to handle chart generation *@
+            <script>
+            // Set up the chart data
+            var chartLabels = [];
+            var chartData = {};
+            var labelAndData = @Html.Raw(Json.Serialize(Model.receipts.Select(r => new { date = r.date, totalAmount = r.totalAmount }).ToArray()));
+
+            // Group data by year
+            labelAndData.forEach(function(item) {
+            var year = new Date(item.date).getFullYear();
+            if (!chartData.hasOwnProperty(year)) {
+                chartData[year] = 0;
+            }
+            chartData[year] += item.totalAmount;
+            });
+
+            // Populate chartLabels and chartData
+            for (var year in chartData) {
+            if (chartData.hasOwnProperty(year)) {
+                chartLabels.push(year);
+            }
+            }
+
+            // Configure and create the chart
+            var ctx = document.getElementById('chart-area').getContext('2d');
+            var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                label: 'Total Amount',
+                data: chartLabels.map(function(label) { return chartData[label]; }),
+                backgroundColor: [
+                    @* 'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)', *@
+                    @* 'rgba(255, 44, 85, 1)', *@
+                    'rgba(196, 30, 61, 1)',
+                    @* 'rgba(125, 17, 40, 1)', *@
+                    //... more colors...
+                ],
+                borderColor: [
+                    @* 'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)', *@
+                    //... more colors...
+                ],
+                borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                y: {
+                    beginAtZero: true
+                }
+                }
+            }
+            });
+        </script>
+        <script>
+            @* script to handle chart generation *@
+            // Set up the chart data for months
+            var chartLabelsMonths = [];
+            var chartDataMonths = {};
+
+            // Convert date strings to Date objects and group data by month
+            labelAndData.forEach(function(item) {
+                var date = new Date(item.date);
+                var monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                
+                if (!chartDataMonths.hasOwnProperty(monthYear)) {
+                    chartDataMonths[monthYear] = 0;
+                }
+                chartDataMonths[monthYear] += item.totalAmount;
+            });
+
+            // Populate chartLabelsMonths and chartDataMonths
+            for (var monthYear in chartDataMonths) {
+                if (chartDataMonths.hasOwnProperty(monthYear)) {
+                    chartLabelsMonths.push(monthYear);
+                }
+            }
+
+            // Configure and create the chart for months
+            var ctxMonths = document.getElementById('chart-area-months').getContext('2d');
+            var myChartMonths = new Chart(ctxMonths, {
+                type: 'bar',
+                data: {
+                    labels: chartLabelsMonths,
+                    datasets: [{
+                        label: 'Total Amount',
+                        data: chartLabelsMonths.map(function(label) { return chartDataMonths[label]; }),
+                        backgroundColor: [
+                            'rgba(196, 30, 61, 1)',
+                        ],
+                        borderColor: [
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+
+        }
+        
+        <hr>
+        @* Frequently Asked Questions Section *@
+        <section id="faqs">
+            <h2>Frequntly Asked Questions</h2>
+            <div id="dropdownMenu">
+                <button id="dropdownbtn1">How do I upload a receipt?</button>
+                <p id="dropdowncontent1">You can upload a receipt by clicking on the "Upload Receipt" button and selecting the file from your device.</p>
+                <p></p>
+                <button id="dropdownbtn2">How can I see more details about a specific receipt?</button>
+                <p id="dropdowncontent2">You can click on the "Open" button in the "Manage Receipt" column to see more details about a specific receipt.</p>
+                <p></p>
+                <button id="dropdownbtn3">How do I sort my Receipts</button>
+                <p id="dropdowncontent3">You can sort your receipts by various criteria such as shop name, category, date, and country using the dropdown menu above the table</p>
+                <p></p>
+                <button id="dropdownbtn4">What file formats are supported for uploading receipts?</button>
+                <p id="dropdowncontent4">The following file formats for uploading receipts are supported, images (JPEG, JPG, PNG, WEBP) and PDF documents.</p>
+            </div>
+        </section>
+    </body>
+</div>
+

@@ -1,0 +1,27 @@
+-- database: /Users/joannamukasa/Recidol/app.db
+
+-- Use the ▷ button in the top right corner to run the entire file.
+
+
+CREATE TABLE receiptInfo (
+    id TEXT PRIMARY KEY,
+    userId TEXT,
+    SupplierName Text,
+    Category Text,
+    Currency Text,
+    totalAmount INTEGER,
+    date text,
+    time text,
+    imagePath text,
+    FOREIGN KEY(userId) REFERENCES AspNetUsers(id));
+
+
+CREATE TABLE lineItems (
+    receiptId TEXT,
+    description TEXT,
+    quantity INTEGER,
+    price INTEGER,
+    totalAmount INTEGER,
+    FOREIGN KEY(receiptId) REFERENCES receiptInfo(id)
+)
+

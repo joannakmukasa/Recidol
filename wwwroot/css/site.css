@@ -1,0 +1,163 @@
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+  background-color: #F0EFEE;
+}
+
+body {
+  margin-bottom: 60px;
+  background-color: inherit;
+}
+
+#logo {
+  object-fit: cover;
+  object-position: 30% 43%;
+  height: 60px;
+  width: 250px;
+}
+
+#uploadbtn{
+  /* width: 12%; */
+  background-color: black;
+  color: white;
+  border: black solid;
+  border-radius: 5px;
+  
+}
+
+.blackbtns {
+  background-color: black;
+  color: white;
+  border: black solid;
+  border-radius: 5px;
+}
+
+.table-head {
+  color: white;
+  /* background-color: black; */
+}
+
+h1{
+  color: #C41E3D;
+  /* color: #FF2C55; */
+}
+
+hr {
+  border-top: 2px solid black;
+  width: 100%;
+}
+
+/* .tableBtns {
+  background-color: #C41E3D;
+  color: black;
+  border-color: black;
+  border-radius: 5px;
+} */
+
+/* .tables {
+  background-color: white;
+  border-color: black solid;
+  padding: 10px;
+} */
+
+table{
+  border-radius: 10px; 
+}
+
+#tablecontrols {
+  /* display: block; */
+  /* display: inline-block; */
+  /* border: solid black; */
+  /* padding: 10px; */
+}
+
+#orderBy{
+  float: right;
+  /* border: solid black; */
+  /* padding: 10px; */
+  /* float: inline-end; */
+}
+
+#updateTable{
+  /* float: right; */
+  /* border: solid black; */
+  /* padding: 10px; */
+  text-align: end;
+  /* display: block; */
+}
+
+.modal img{
+  max-width: 100%;
+}
+
+/* .modal-body table {
+  display: inline-block;
+} */
+
+.modal-body {
+  /* border: solid black;
+  padding: 10px; */
+}
+
+.modal{
+  /* width: 100%; */
+  text-align: initial;
+}
+
+h4, h5 {
+  color: #C41E3D;
+}
+
+/* .tables {
+  padding: 25px;
+  border-radius: 5px;
+  background-color: #C41E3D;
+}
+
+.tables table{
+  background-color: #F0EFEE;
+  border-radius: 2%;
+  border: solid black;
+} */
+
+/* #receiptsList button, 
+#receiptsListByShop button, 
+#receiptsListByDate button, 
+#receiptsListByCountry button, 
+#recieptsListByCategory button{
+  display: inline-block;
+} */
+
+.button-group {
+  display: flex;
+  /* justify-content: space-between; */
+  justify-content: space-evenly;
+}
+
+
+#dropdownMenu button{
+  background-color: #F0EFEE;
+  border: solid black;
+  width: 80%;
+  height: 50px;
+}
+
+#dropdowncontent1, #dropdowncontent2, #dropdowncontent3, #dropdowncontent4{
+  width: 80%;
+  margin:auto;
+}
